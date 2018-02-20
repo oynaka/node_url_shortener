@@ -1,0 +1,67 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>URL Shortener</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body>
+        <!--[if lte IE 9]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+        <![endif]-->
+        <input type="url" id="txtUrl" placeholder="url (required)" value="" />
+        <input type="text" id="txtVanity" placeholder="vanity (optional)" value="" />
+        <button type="submit" id="btnSubmit">Get Short URL!</button>
+		<br/><br/>
+		<label id="errorMsg" style="color:red"></label>
+        <div id="divResult">
+            <a id="resultLink" href="" target="_blank"></a>
+        </div>
+
+        <script
+            src="http://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+            crossorigin="anonymous"></script>
+        <script type="text/javascript">
+            $(function() {
+
+				var resultMsg = {
+				'100': 'action executed successfully',
+				'400': 'couldn\'t add URL, the vanity url is already taken',
+				'401': 'the URL isn\'t reachable (e.g. a 404 or 500 is returned, or the URL doesn\'t exist at all)',
+				'402': 'the "URL" parameter isn\'t set',
+				'403': 'the vanity string contains invalid characters (valid characters are 0-9, a-z, A-Z. - and _)',
+				'404': 'the short link doesn\'t exist (this is returned when you call a short URL and it doesn\'t exist in the database)',
+				'405': 'the vanity string (custom short URL) can\'t be longer than 15 characters',
+				'406': 'the URL can\'t be longer than 1000 characters',
+				'407': 'the vanity string has to contain more characters',
+				'408': 'maximum number of URL\'s per hour exceeded'
+	};
+
+                $('#divResult').hide();
+                $('#btnSubmit').click(function () {
+                    if ($('#txtUrl').val()) {
+						var url='/add?url=' + encodeURI($('#txtUrl').val());
+						if($('#txtVanity').val()) {
+							url = url+'&vanity='+$('#txtVanity').val();
+						}
+					    $('#errorMsg').text('');
+						$('#btnSubmit').prop('disabled', true).text('Processing...');
+                        $.get(url, function (res) {
+							$('#btnSubmit').prop('disabled', false).text('Get Short URL!');
+							if(res.statusCode != 100) {
+								$('#divResult').hide();
+								$('#errorMsg').text(resultMsg[res.statusCode+'']);
+							} else {
+	                            $('#divResult').show();
+	                            $('#resultLink').attr('href', res.url).text(res.url);
+							}
+                        });
+                    }
+                })
+            });
+        </script>
+    </body>
+</html>
